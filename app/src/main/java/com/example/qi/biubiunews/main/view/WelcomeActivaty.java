@@ -89,9 +89,6 @@ public class WelcomeActivaty extends AppCompatActivity {
     }
 
 
-
-
-
     private void loadData() {
 
         dbUtils = new DbUtils(this);

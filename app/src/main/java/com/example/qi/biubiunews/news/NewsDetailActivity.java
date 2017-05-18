@@ -93,7 +93,13 @@ public class NewsDetailActivity extends AppCompatActivity {
             }
         });
 
-//
+        recyclerView.setOnRefreshListener(new OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                requestData();
+            }
+        });
+
         btn_comment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -108,12 +114,14 @@ public class NewsDetailActivity extends AppCompatActivity {
                 httpUtils.new_comment(comment, new HttpCallback() {
                     @Override
                     public void onResponse(Response response) {
-                        recyclerView.refresh();
+                        Toast.makeText(NewsDetailActivity.this, "评论成功", Toast.LENGTH_SHORT).show();
+                        et_comment.setText("");
+                        requestData();
                     }
 
                     @Override
                     public void onFailure(Throwable t) {
-
+                        Toast.makeText(NewsDetailActivity.this, t.toString(), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -149,7 +157,6 @@ public class NewsDetailActivity extends AppCompatActivity {
     }
 
     private void requestData() {
-        Toast.makeText(this, "data", Toast.LENGTH_SHORT).show();
         //请求网络
         httpUtils.get_comment_list(news_id,new HttpCallback() {
             @Override

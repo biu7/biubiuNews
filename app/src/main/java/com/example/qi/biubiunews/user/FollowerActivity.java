@@ -1,9 +1,12 @@
 package com.example.qi.biubiunews.user;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.qi.biubiunews.R;
 import com.example.qi.biubiunews.callback.HttpCallback;
@@ -37,7 +40,9 @@ public class FollowerActivity extends AppCompatActivity {
 
     private int FLAG;
 
+    private List<User> list;
 
+    private Toolbar toolbar;
 
     private LRecyclerView recyclerView;
     private UserFollowAdapter recyclerAdapter;
@@ -49,8 +54,11 @@ public class FollowerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_follower);
         FLAG = getIntent().getFlags();
         httpUtils = new HttpUtils(this);
-
+        list = new ArrayList<>();
         recyclerView = (LRecyclerView) findViewById(R.id.user_follow_recyl);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         recyclerAdapter = new UserFollowAdapter(this);
         mLRecyclerViewAdapter = new LRecyclerViewAdapter(recyclerAdapter);
         recyclerView.setAdapter(mLRecyclerViewAdapter);
@@ -64,10 +72,7 @@ public class FollowerActivity extends AppCompatActivity {
         recyclerView.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh() {
-
-
                 requestData(1);
-
             }
         });
 
@@ -89,7 +94,9 @@ public class FollowerActivity extends AppCompatActivity {
         mLRecyclerViewAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                //点击
+                Intent intent = new Intent(FollowerActivity.this,UserActivity.class);
+                intent.putExtra("user",list.get(position));
+                startActivity(intent);
             }
 
         });
@@ -109,20 +116,32 @@ public class FollowerActivity extends AppCompatActivity {
     private void requestData(int page) {
         switch (FLAG){
             case 0:
+                getSupportActionBar().setTitle("关注");
                 loadFollowed();
                 break;
             case 1:
+                getSupportActionBar().setTitle("粉丝");
                 loadFollower();
+                break;
+            case 2:
+                getSupportActionBar().setTitle("关注");
+                loadUserFollowed();
+                break;
+            case 3:
+                loadUserFollower();
+                getSupportActionBar().setTitle("粉丝");
                 break;
         }
     }
+
+
 
     private void loadFollower(){
         //请求网络
         httpUtils.get_self_follower(new HttpCallback() {
             @Override
             public void onResponse(Response response) {
-                List<User> list = (List<User>) response.body();
+                list = (List<User>) response.body();
                 recyclerAdapter.clear();
                 mLRecyclerViewAdapter.notifyDataSetChanged();//fix bug:crapped or attached views may not be recycled. isScrap:false isAttached:true
                 mCurrentCounter = 0;
@@ -141,7 +160,7 @@ public class FollowerActivity extends AppCompatActivity {
         httpUtils.get_self_followed(new HttpCallback() {
             @Override
             public void onResponse(Response response) {
-                List<User> list = (List<User>) response.body();
+                list = (List<User>) response.body();
                 recyclerAdapter.clear();
                 mLRecyclerViewAdapter.notifyDataSetChanged();//fix bug:crapped or attached views may not be recycled. isScrap:false isAttached:true
                 mCurrentCounter = 0;
@@ -151,7 +170,48 @@ public class FollowerActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Throwable t) {
+                Toast.makeText(FollowerActivity.this, t.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
+    private void loadUserFollower() {
+        int user_id = getIntent().getIntExtra("user_id",1);
+        httpUtils.get_user_follower(user_id, new HttpCallback() {
+            @Override
+            public void onResponse(Response response) {
+                list = (List<User>) response.body();
+                recyclerAdapter.clear();
+                mLRecyclerViewAdapter.notifyDataSetChanged();//fix bug:crapped or attached views may not be recycled. isScrap:false isAttached:true
+                mCurrentCounter = 0;
+                FollowerActivity.this.addItems(list);
+                recyclerView.refreshComplete(REQUEST_COUNT);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Toast.makeText(FollowerActivity.this, t.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
+    private void loadUserFollowed() {
+        int user_id = getIntent().getIntExtra("user_id",1);
+        httpUtils.get_user_followed(user_id, new HttpCallback() {
+            @Override
+            public void onResponse(Response response) {
+                list = (List<User>) response.body();
+                recyclerAdapter.clear();
+                mLRecyclerViewAdapter.notifyDataSetChanged();//fix bug:crapped or attached views may not be recycled. isScrap:false isAttached:true
+                mCurrentCounter = 0;
+                FollowerActivity.this.addItems(list);
+                recyclerView.refreshComplete(REQUEST_COUNT);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Toast.makeText(FollowerActivity.this, t.toString(), Toast.LENGTH_SHORT).show();
             }
         });
     }

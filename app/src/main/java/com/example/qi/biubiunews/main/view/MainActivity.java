@@ -16,6 +16,7 @@ import com.example.qi.biubiunews.callback.HttpCallback;
 import com.example.qi.biubiunews.models.Category;
 import com.example.qi.biubiunews.models.Token;
 
+import com.example.qi.biubiunews.models.User;
 import com.example.qi.biubiunews.news.NewsFragment;
 import com.example.qi.biubiunews.utils.HttpUtils;
 import com.example.qi.biubiunews.utils.Utils;
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private MyNanigationViewAdapter myNavigationViewAdapter;
     private Token token;
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,10 +58,15 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("asdasd");
         token = Utils.loadToken(this);
+        user = Utils.getUser(this);
 
     }
     public Token getToken(){
         return token;
+    }
+
+    public User getUser(){
+        return user;
     }
 
 

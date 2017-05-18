@@ -44,14 +44,12 @@ public class UserFragment extends Fragment implements View.OnClickListener {
     private LinearLayout click_follower;
     private LinearLayout click_news;
     private LinearLayout click_login;
-    private LinearLayout click_select;
+    private LinearLayout click_setting;
+    private LinearLayout click_package;
     private ImageView click_edit;
 
     private TextView tv_location;
     private TextView tv_about_me;
-    private TextView tv_followed;
-    private TextView tv_follower;
-    private TextView tv_news;
     private TextView tv_login;
 
     private ImageView icon;
@@ -73,16 +71,13 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         ((MainActivity)getActivity()).getSupportActionBar().setTitle("请登录");
         initView(root);
         token = ((MainActivity) getActivity()).getToken();
+        user = ((MainActivity) getActivity()).getUser();
         if (TextUtils.isEmpty(token.getToken())){
             return root;
         }
         tv_login.setText("退出登录");
-        if (user == null){
-            loadUser();
-        }else{
-            setUser(user);
-        }
-
+        setUser(user);
+        loadUser();
         return root;
     }
 
@@ -91,8 +86,8 @@ public class UserFragment extends Fragment implements View.OnClickListener {
             @Override
             public void onResponse(Response response) {
                 user = (User) response.body();
+                Utils.setUser(getActivity(),user);
                 setUser(user);
-                Log.i("user",user.toString());
             }
 
             @Override
@@ -107,14 +102,11 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         click_follower = (LinearLayout) root.findViewById(R.id.click_self_follower);
         click_news = (LinearLayout) root.findViewById(R.id.click_self_news);
         click_login = (LinearLayout) root.findViewById(R.id.click_self_login);
-        click_select = (LinearLayout) root.findViewById(R.id.click_select_site);
         click_edit = (ImageView) root.findViewById(R.id.click_self_edit);
-
-        tv_followed = (TextView) root.findViewById(R.id.tv_self_followed);
-        tv_follower = (TextView) root.findViewById(R.id.tv_self_follower);
+        click_package = (LinearLayout) root.findViewById(R.id.click_self_packages);
+        click_setting = (LinearLayout) root.findViewById(R.id.click_self_setting);
         tv_location = (TextView) root.findViewById(R.id.tv_self_location);
         tv_about_me = (TextView) root.findViewById(R.id.tv_self_about_me);
-        tv_news = (TextView) root.findViewById(R.id.tv_self_news);
         tv_login = (TextView) root.findViewById(R.id.tv_login);
 
         icon = (ImageView) root.findViewById(R.id.image_self_icon);
@@ -124,8 +116,10 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         click_follower.setOnClickListener(this);
         click_news.setOnClickListener(this);
         click_login.setOnClickListener(this);
-        click_select.setOnClickListener(this);
+        click_setting.setOnClickListener(this);
         click_edit.setOnClickListener(this);
+        click_package.setOnClickListener(this);
+
 
         httpUtils = new HttpUtils(getActivity());
 
@@ -138,14 +132,14 @@ public class UserFragment extends Fragment implements View.OnClickListener {
     public void setUser(User user){
         tv_location.setText(user.getLocation());
         tv_about_me.setText(user.getAbout_me());
-        tv_followed.setText(String.valueOf(user.getFollowed_count()));
-        tv_follower.setText(String.valueOf(user.getFollower_count()));
-        tv_news.setText(String.valueOf(user.getNews_count()));
         ((MainActivity)getActivity()).getSupportActionBar().setTitle(user.getName());
-        Picasso.with(getActivity())
+        if (!TextUtils.isEmpty(user.getIcon())){
+            Picasso.with(getActivity())
                 .load(user.getIcon())
                 .transform(new CircleTransform())
                 .into(icon);
+        }
+
     }
 
     public void updateIcon(){
@@ -203,7 +197,14 @@ public class UserFragment extends Fragment implements View.OnClickListener {
                     startActivity(intent1);
                     break;
                 case R.id.click_self_news:
-                    startActivity(new Intent(getActivity(),UserNewsActivity.class));
+                    Intent intent2 = new Intent(getActivity(),UserNewsActivity.class);
+                    intent2.setFlags(0);
+                    startActivity(intent2);
+                    break;
+                case R.id.click_self_packages:
+                    Intent intent3 = new Intent(getActivity(),PackageActivity.class);
+                    intent3.setFlags(0);
+                    startActivity(intent3);
                     break;
                 case R.id.click_self_edit:
                     edit_Profile();
@@ -213,27 +214,8 @@ public class UserFragment extends Fragment implements View.OnClickListener {
                     startActivity(new Intent(getActivity(),MainActivity.class));
                     getActivity().finish();
                     break;
-                case R.id.click_select_site:
-                    DbUtils dbUtils = new DbUtils(getActivity());
-                    final List<Site> sites = dbUtils.get_sites();
-                    Log.i("sites",sites.toString());
-                    String[] strs = new String[sites.size()];
-
-                    for(int i=0;i<sites.size();i++){
-                        strs[i]=sites.get(i).getName();
-                    }
-                    AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
-                            .setItems(strs, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    Site site  =sites.get(which);
-                                    Utils.setSite(getActivity(),site);
-                                    Toast.makeText(getActivity(), "已切换新闻源为" + site.getName(), Toast.LENGTH_SHORT).show();
-                                    startActivity(new Intent(getActivity(),MainActivity.class));
-                                    getActivity().finish();
-                                }
-                            }).show();
-
+                case R.id.click_self_setting:
+                    startActivity(new Intent(getActivity(),SettingActivity.class));
                     break;
             }
         }

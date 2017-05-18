@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 import com.example.qi.biubiunews.R;
 import com.example.qi.biubiunews.callback.HttpCallback;
 import com.example.qi.biubiunews.models.News;
+import com.example.qi.biubiunews.models.Package;
 import com.example.qi.biubiunews.news.NewsDetailActivity;
 import com.example.qi.biubiunews.user.adapter.UserNewsRecyclerAdapter;
 import com.example.qi.biubiunews.utils.HttpUtils;
@@ -40,19 +42,26 @@ public class UserNewsActivity extends AppCompatActivity{
     /**已经获取到多少条数据了*/
     private static int mCurrentCounter = 0;
 
+    private int FLAG;
+
 
 
     private LRecyclerView recyclerView;
     private UserNewsRecyclerAdapter recyclerAdapter;
     private LRecyclerViewAdapter mLRecyclerViewAdapter;
     private HttpUtils httpUtils;
+
+    private Toolbar toolbar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_news);
+        FLAG = getIntent().getFlags();
         httpUtils = new HttpUtils(this);
 
         recyclerView = (LRecyclerView) findViewById(R.id.user_news_recyl);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         recyclerAdapter = new UserNewsRecyclerAdapter(this);
         mLRecyclerViewAdapter = new LRecyclerViewAdapter(recyclerAdapter);
         recyclerView.setAdapter(mLRecyclerViewAdapter);
@@ -115,8 +124,26 @@ public class UserNewsActivity extends AppCompatActivity{
     }
 
     private void requestData(int page) {
-        //请求网络
-        httpUtils.get_self_news(page,new HttpCallback() {
+
+        switch(FLAG){
+            case 0:
+                loadNews(page);
+                break;
+            case 1:
+                loadUserNew(page);
+                break;
+            case 2:
+                loadCollection();
+                break;
+        }
+
+    }
+
+    private void loadCollection() {
+
+        Package mPackage  = getIntent().getParcelableExtra("package");
+        getSupportActionBar().setTitle(mPackage.getName());
+        httpUtils.get_package_info(mPackage.getId(), new HttpCallback() {
             @Override
             public void onResponse(Response response) {
                 List<News> list = (List<News>) response.body();
@@ -131,6 +158,49 @@ public class UserNewsActivity extends AppCompatActivity{
             @Override
             public void onFailure(Throwable t) {
 
+            }
+        });
+    }
+
+    private void loadUserNew(int page) {
+        int user_id = getIntent().getIntExtra("user_id",1);
+        httpUtils.get_user_news(user_id, page,new HttpCallback() {
+            @Override
+            public void onResponse(Response response) {
+                List<News> list = (List<News>) response.body();
+                Log.i("news",list.toString());
+                recyclerAdapter.clear();
+                mLRecyclerViewAdapter.notifyDataSetChanged();//fix bug:crapped or attached views may not be recycled. isScrap:false isAttached:true
+                mCurrentCounter = 0;
+                UserNewsActivity.this.addItems(list);
+                recyclerView.refreshComplete(REQUEST_COUNT);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Toast.makeText(UserNewsActivity.this, t.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
+    private void loadNews(int page) {
+         //请求网络
+        httpUtils.get_self_news(page,new HttpCallback() {
+            @Override
+            public void onResponse(Response response) {
+                List<News> list = (List<News>) response.body();
+                Log.i("news",list.toString());
+                recyclerAdapter.clear();
+                mLRecyclerViewAdapter.notifyDataSetChanged();//fix bug:crapped or attached views may not be recycled. isScrap:false isAttached:true
+                mCurrentCounter = 0;
+                UserNewsActivity.this.addItems(list);
+                recyclerView.refreshComplete(REQUEST_COUNT);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Toast.makeText(UserNewsActivity.this, t.toString(), Toast.LENGTH_SHORT).show();
             }
         });
     }

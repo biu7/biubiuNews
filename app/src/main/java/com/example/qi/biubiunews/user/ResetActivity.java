@@ -32,6 +32,8 @@ public class ResetActivity extends AppCompatActivity implements View.OnClickList
     private EditText et_code;
     private EditText et_password;
 
+    private String phone;
+
     private TextView click_reset;
     private FrameLayout click_send;
     private TextView tv_send;
@@ -83,6 +85,14 @@ public class ResetActivity extends AppCompatActivity implements View.OnClickList
         click_send.setOnClickListener(this);
         click_reset.setOnClickListener(this);
         apiService = ServiceGenerator.createService(ApiService.class);
+
+        phone = getIntent().getStringExtra("phone");
+        if (!TextUtils.isEmpty(phone)){
+            et_phone.setText(phone);
+            et_phone.setEnabled(false);
+            send_sms(phone);
+
+        }
     }
 
 
@@ -91,7 +101,8 @@ public class ResetActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.reset_click_send:
-                send_sms();
+                phone = et_phone.getText().toString();
+                send_sms(phone);
                 break;
             case R.id.reset_click_reset:
                 verify_code();
@@ -128,8 +139,8 @@ public class ResetActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    private void send_sms() {
-        String phonenum = et_phone.getText().toString();
+    private void send_sms(String phonenum) {
+
         if (TextUtils.isEmpty(phonenum)){
             Toast.makeText(this, "手机号码不可为空", Toast.LENGTH_SHORT).show();
             return;

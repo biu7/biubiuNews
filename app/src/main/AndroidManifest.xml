@@ -59,7 +59,9 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity android:name=".user.ResetActivity" />
-        <activity android:name=".user.EditProfileActivity"></activity>
+        <activity android:name=".user.EditProfileActivity" />
+        <activity android:name=".user.UserActivity" />
+        <activity android:name=".user.PackageActivity"></activity>
     </application>
 
 </manifest>

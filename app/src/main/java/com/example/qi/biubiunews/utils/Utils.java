@@ -9,6 +9,7 @@ import android.util.Log;
 import com.example.qi.biubiunews.models.Category;
 import com.example.qi.biubiunews.models.Site;
 import com.example.qi.biubiunews.models.Token;
+import com.example.qi.biubiunews.models.User;
 
 import java.util.List;
 
@@ -49,4 +50,32 @@ public class Utils {
         editor.putString("site_name",site.getName());
         editor.commit();
     }
+
+     public static User getUser(Context context){
+         User user = new User();
+         SharedPreferences preferences = context.getSharedPreferences("user",MODE_PRIVATE);
+         user.setId(preferences.getInt("id",1));
+         user.setName(preferences.getString("name",""));
+         user.setAbout_me(preferences.getString("about_me",""));
+         user.setLocation(preferences.getString("location",""));
+         user.setPhone(preferences.getString("phone",""));
+         user.setIcon(preferences.getString("icon",""));
+
+        return user;
+    }
+
+    public static void setUser(Context context,User user){
+        SharedPreferences preferences = context.getSharedPreferences("user",MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt("id",user.getId());
+        editor.putString("name",user.getName());
+        editor.putString("about_me",user.getAbout_me());
+        editor.putString("location",user.getLocation());
+        editor.putString("phone",user.getPhone());
+        editor.putString("icon",user.getIcon());
+        editor.commit();
+    }
+
+
+
 }

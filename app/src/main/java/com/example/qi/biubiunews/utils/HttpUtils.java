@@ -10,6 +10,7 @@ import com.example.qi.biubiunews.http.ServiceGenerator;
 import com.example.qi.biubiunews.models.Category;
 import com.example.qi.biubiunews.models.Comment;
 import com.example.qi.biubiunews.models.News;
+import com.example.qi.biubiunews.models.Package;
 import com.example.qi.biubiunews.models.Site;
 import com.example.qi.biubiunews.models.Token;
 import com.example.qi.biubiunews.models.User;
@@ -167,6 +168,21 @@ public class HttpUtils {
         });
     }
 
+    public void is_follow(int id,final HttpCallback httpCallback){
+        Call<Boolean> call = apiService.is_follow(id);
+        call.enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                httpCallback.onResponse(response);
+            }
+
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+                httpCallback.onFailure(t);
+            }
+        });
+    }
+
     public void get_self_news(int page ,final HttpCallback httpCallback){
         Call<List<News>> call = apiService.get_self_news(page);
         call.enqueue(new Callback<List<News>>() {
@@ -183,8 +199,8 @@ public class HttpUtils {
 
     }
 
-    public void get_user_news(int id, final HttpCallback httpCallback){
-        Call<List<News>> call = apiService.get_user_news(id);
+    public void get_user_news(int id, int page,final HttpCallback httpCallback){
+        Call<List<News>> call = apiService.get_user_news(id,page);
         call.enqueue(new Callback<List<News>>() {
             @Override
             public void onResponse(Call<List<News>> call, Response<List<News>> response) {
@@ -306,6 +322,130 @@ public class HttpUtils {
         });
 
     }
+
+    //获取用户收藏夹
+    public void get_self_packages(final HttpCallback httpCallback){
+        Call<List<Package>> call = apiService.get_self_package();
+        call.enqueue(new Callback<List<Package>>() {
+            @Override
+            public void onResponse(Call<List<Package>> call, Response<List<Package>> response) {
+                httpCallback.onResponse(response);
+            }
+
+            @Override
+            public void onFailure(Call<List<Package>> call, Throwable t) {
+                httpCallback.onFailure(t);
+            }
+        });
+    }
+
+    //获取指定用户收藏夹
+    public void get_user_packages(int id,final HttpCallback httpCallback){
+        Call<List<Package>> call = apiService.get_user_packages(id);
+        call.enqueue(new Callback<List<Package>>() {
+            @Override
+            public void onResponse(Call<List<Package>> call, Response<List<Package>> response) {
+                httpCallback.onResponse(response);
+            }
+
+            @Override
+            public void onFailure(Call<List<Package>> call, Throwable t) {
+                httpCallback.onFailure(t);
+            }
+        });
+    }
+
+    //获取指定收藏夹内容
+    public void get_package_info(int id ,final HttpCallback httpCallback){
+        Call<List<News>> call = apiService.get_package_info(id);
+        call.enqueue(new Callback<List<News>>() {
+            @Override
+            public void onResponse(Call<List<News>> call, Response<List<News>> response) {
+                httpCallback.onResponse(response);
+            }
+
+            @Override
+            public void onFailure(Call<List<News>> call, Throwable t) {
+                httpCallback.onFailure(t);
+            }
+        });
+    }
+
+    //新建收藏夹
+    public void new_package(String name ,final HttpCallback httpCallback){
+        Call<Void> call = apiService.new_package(name);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                httpCallback.onResponse(response);
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                httpCallback.onFailure(t);
+            }
+        });
+    }
+
+    //删除收藏夹
+    public void delete_package(int id ,final HttpCallback httpCallback){
+        Call<Void> call = apiService.delete_package(id);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                httpCallback.onResponse(response);
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                httpCallback.onFailure(t);
+            }
+        });
+    }
+
+    //收藏
+    public void collection_news(int id,int news_id,final HttpCallback httpCallback){
+        Call<Void> call = apiService.collect_news(id,news_id);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                httpCallback.onResponse(response);
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                httpCallback.onFailure(t);
+            }
+        });
+    }
+
+    //取消收藏
+    public void unCollection_news(int id,int news_id ,final HttpCallback httpCallback){
+        Call<Void> call = apiService.uncollect_news(id,news_id);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                httpCallback.onResponse(response);
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                httpCallback.onFailure(t);
+            }
+        });
+    }
+
+
+
+
+
+
+
+
+
+
+
+    //新闻类
 
     public void get_site_list(final HttpCallback httpCallback){
         Call<List<Site>> call = apiService.get_site_list();

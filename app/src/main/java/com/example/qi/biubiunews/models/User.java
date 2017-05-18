@@ -1,10 +1,13 @@
 package com.example.qi.biubiunews.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by qi on 17-4-25.
  */
 
-public class User {
+public class User implements Parcelable{
 
 
     /**
@@ -140,4 +143,36 @@ public class User {
     public void setUsername(String username) {
         this.username = username;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(name);
+        dest.writeString(location);
+        dest.writeString(about_me);
+        dest.writeString(icon);
+    }
+
+    public static final Parcelable.Creator<User> CREATOR = new Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel source) {
+            User user = new User();
+            user.id = source.readInt();
+            user.name = source.readString();
+            user.location = source.readString();
+            user.about_me = source.readString();
+            user.icon = source.readString();
+            return user;
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
 }

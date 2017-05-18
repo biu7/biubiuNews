@@ -3,10 +3,14 @@
     android:layout_height="match_parent"
     >
 
+    <include layout="@layout/toolbar"
+        android:id="@+id/include4" />
+
     <com.github.jdsjlzx.recyclerview.LRecyclerView
         android:id="@+id/user_news_recyl"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_below="@+id/include4">
         </com.github.jdsjlzx.recyclerview.LRecyclerView>
 
 

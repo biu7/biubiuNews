@@ -3,6 +3,7 @@ package com.example.qi.biubiunews.http;
 import com.example.qi.biubiunews.models.Category;
 import com.example.qi.biubiunews.models.Comment;
 import com.example.qi.biubiunews.models.News;
+import com.example.qi.biubiunews.models.Package;
 import com.example.qi.biubiunews.models.Site;
 import com.example.qi.biubiunews.models.Token;
 import com.example.qi.biubiunews.models.User;
@@ -67,6 +68,10 @@ public interface ApiService {
                                  @Field("location") String location,
                                  @Field("about_me") String about_me);
 
+    //是否关注某用户
+    @GET("user/isfollow/{id}")
+    Call<Boolean> is_follow(@Path("id") int id);
+
     //指定用户的资料
     @GET("user/{id}")
     Call<User> get_user_info(@Path("id") int id);
@@ -108,7 +113,8 @@ public interface ApiService {
 
     //获取指定用户发表的文章
     @GET("user/{id}/news")
-    Call<List<News>> get_user_news(@Path("id") int id);
+    Call<List<News>> get_user_news(@Path("id") int id,
+                                   @Query("page") int page);
 
     //获取登录用户的时间线
     @GET("user/timeline")
@@ -138,6 +144,36 @@ public interface ApiService {
     @GET("user/unfollow/{id}")
     Call<Void> unfollow(@Path("id") int id);
 
+    //获取当前用户的收藏夹
+    @GET("user/packages")
+    Call<List<Package>> get_self_package();
+
+    //获取指定用户的收藏夹
+    @GET("user/{id}/packages")
+    Call<List<Package>> get_user_packages(@Path("id") int id);
+
+    //获取指定收藏夹内容
+    @GET("user/package/{id}")
+    Call<List<News>> get_package_info(@Path("id") int id);
+
+    //新建收藏夹
+    @FormUrlEncoded
+    @POST("user/packages")
+    Call<Void> new_package(@Field("name") String name);
+
+    //删除收藏夹
+    @DELETE("user/package/{id}")
+    Call<Void> delete_package(@Path("id") int id);
+
+    //添加收藏
+    @GET("user/package/{id}/collect")
+    Call<Void> collect_news(@Path("id") int id,
+                            @Query("news_id") int news_id);
+
+    //删除收藏
+    @GET("user/package/{id}/uncollect")
+    Call<Void> uncollect_news(@Path("id") int id,
+                              @Query("news_id") int news_id);
     /*
         新闻类api_v1
     */
