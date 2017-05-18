@@ -10,7 +10,21 @@
     tools:context="com.example.qi.biubiunews.news.NewsDetailActivity">
 
 
-        <android.support.v7.widget.Toolbar
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/news_collect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/linearLayout"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
+        android:clickable="true"
+        app:backgroundTint="@color/colorPrimary"
+        app:srcCompat="@android:drawable/btn_star" />
+
+
+    <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"

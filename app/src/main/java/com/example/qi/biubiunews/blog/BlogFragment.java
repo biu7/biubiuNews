@@ -17,6 +17,7 @@ import com.example.qi.biubiunews.R;
 import com.example.qi.biubiunews.callback.HttpCallback;
 import com.example.qi.biubiunews.main.view.MainActivity;
 import com.example.qi.biubiunews.models.News;
+import com.example.qi.biubiunews.models.Token;
 import com.example.qi.biubiunews.news.EditNewsActivity;
 import com.example.qi.biubiunews.news.NewsDetailActivity;
 import com.example.qi.biubiunews.news.NewsListFragment;
@@ -57,6 +58,7 @@ public class BlogFragment extends Fragment {
     private UserNewsRecyclerAdapter recyclerAdapter;
     private LRecyclerViewAdapter mLRecyclerViewAdapter;
     private HttpUtils httpUtils;
+    private Token token;
 
     public static BlogFragment newInstance() {
         BlogFragment fragment = new BlogFragment();
@@ -68,6 +70,7 @@ public class BlogFragment extends Fragment {
                              Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_blog, container, false);
         ((MainActivity)getActivity()).getSupportActionBar().setTitle("TimeLine");
+        token = ((MainActivity) getActivity()).getToken();
         httpUtils = new HttpUtils(getActivity());
         actionButton = (FloatingActionButton) root.findViewById(R.id.new_news);
         recyclerView = (LRecyclerView) root.findViewById(R.id.timeline_recyl);
@@ -130,9 +133,13 @@ public class BlogFragment extends Fragment {
         actionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), EditNewsActivity.class);
-                intent.setFlags(FLAG_NEW);
-                startActivity(intent);
+                if(TextUtils.isEmpty(token.getToken())){
+                        Toast.makeText(getActivity(), "请先登录", Toast.LENGTH_SHORT).show();
+                }else {
+                    Intent intent = new Intent(getActivity(), EditNewsActivity.class);
+                    intent.setFlags(FLAG_NEW);
+                    startActivity(intent);
+                }
             }
         });
         return root;

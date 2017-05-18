@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import android.support.v7.widget.LinearLayoutManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,9 +14,12 @@ import android.widget.Toast;
 
 import com.example.qi.biubiunews.R;
 import com.example.qi.biubiunews.callback.HttpCallback;
+import com.example.qi.biubiunews.main.view.MainActivity;
 import com.example.qi.biubiunews.models.News;
+import com.example.qi.biubiunews.models.Token;
 import com.example.qi.biubiunews.user.adapter.UserNewsRecyclerAdapter;
 import com.example.qi.biubiunews.utils.HttpUtils;
+import com.example.qi.biubiunews.utils.Utils;
 import com.github.jdsjlzx.interfaces.OnItemClickListener;
 import com.github.jdsjlzx.interfaces.OnLoadMoreListener;
 import com.github.jdsjlzx.interfaces.OnRefreshListener;
@@ -49,7 +53,7 @@ public class NewsListFragment extends android.support.v4.app.Fragment  {
     private HttpUtils httpUtils;
     private static final String CATAGORY = "section_number";
     private int cat_id;
-
+    private Token token;
     public NewsListFragment() {
     }
 
@@ -67,6 +71,7 @@ public class NewsListFragment extends android.support.v4.app.Fragment  {
         View rootView = inflater.inflate(R.layout.fragment_newslist, container, false);
 
         cat_id = getArguments().getInt(CATAGORY);
+        token = ((MainActivity) getActivity()).getToken();
         httpUtils = new HttpUtils(getActivity());
         recyclerView = (LRecyclerView) rootView.findViewById(R.id.user_news_recyl);
         recyclerAdapter = new UserNewsRecyclerAdapter(getActivity());
@@ -102,14 +107,20 @@ public class NewsListFragment extends android.support.v4.app.Fragment  {
         });
         recyclerView.refresh();
 
+
         mLRecyclerViewAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 if (recyclerAdapter.getDataList().size() > position) {
-                    News item = (News) recyclerAdapter.getDataList().get(position);
-                    Intent intent = new Intent(getActivity(), NewsDetailActivity.class);
-                    intent.putExtra("news_id",item.getId());
-                    startActivity(intent);
+                    if(TextUtils.isEmpty(token.getToken())){
+                        Toast.makeText(getActivity(), "请先登录", Toast.LENGTH_SHORT).show();
+                    }else{
+                        News item = (News) recyclerAdapter.getDataList().get(position);
+                        Intent intent = new Intent(getActivity(), NewsDetailActivity.class);
+                        intent.putExtra("news_id",item.getId());
+                        startActivity(intent);
+                    }
+
                 }
             }
 

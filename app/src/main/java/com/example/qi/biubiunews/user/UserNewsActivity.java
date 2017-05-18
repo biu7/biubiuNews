@@ -1,5 +1,7 @@
 package com.example.qi.biubiunews.user;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ProviderInfo;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -20,6 +22,7 @@ import com.example.qi.biubiunews.news.NewsDetailActivity;
 import com.example.qi.biubiunews.user.adapter.UserNewsRecyclerAdapter;
 import com.example.qi.biubiunews.utils.HttpUtils;
 import com.github.jdsjlzx.interfaces.OnItemClickListener;
+import com.github.jdsjlzx.interfaces.OnItemLongClickListener;
 import com.github.jdsjlzx.interfaces.OnLoadMoreListener;
 import com.github.jdsjlzx.interfaces.OnRefreshListener;
 import com.github.jdsjlzx.recyclerview.LRecyclerView;
@@ -52,6 +55,8 @@ public class UserNewsActivity extends AppCompatActivity{
     private HttpUtils httpUtils;
 
     private Toolbar toolbar;
+    private Package mPackage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,6 +115,32 @@ public class UserNewsActivity extends AppCompatActivity{
             }
 
         });
+        if (FLAG == 2){
+            mLRecyclerViewAdapter.setOnItemLongClickListener(new OnItemLongClickListener() {
+                @Override
+                public void onItemLongClick(View view, int position) {
+                    new AlertDialog.Builder(UserNewsActivity.this)
+                            .setItems(new String[]{"取消收藏"}, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    News news = (News) recyclerAdapter.getDataList().get(which);
+                                    httpUtils.unCollection_news(mPackage.getId(), news.getId(), new HttpCallback() {
+                                        @Override
+                                        public void onResponse(Response response) {
+                                            Toast.makeText(UserNewsActivity.this, "取消收藏成功", Toast.LENGTH_SHORT).show();
+                                            recyclerView.refresh();
+                                        }
+
+                                        @Override
+                                        public void onFailure(Throwable t) {
+                                            Toast.makeText(UserNewsActivity.this, t.toString(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                }
+                            }).show();
+                }
+            });
+        }
 
     }
 
@@ -141,7 +172,7 @@ public class UserNewsActivity extends AppCompatActivity{
 
     private void loadCollection() {
 
-        Package mPackage  = getIntent().getParcelableExtra("package");
+        mPackage  = getIntent().getParcelableExtra("package");
         getSupportActionBar().setTitle(mPackage.getName());
         httpUtils.get_package_info(mPackage.getId(), new HttpCallback() {
             @Override

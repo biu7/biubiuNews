@@ -1,6 +1,9 @@
 package com.example.qi.biubiunews.news;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,6 +23,8 @@ import com.example.qi.biubiunews.R;
 import com.example.qi.biubiunews.callback.HttpCallback;
 import com.example.qi.biubiunews.models.Comment;
 import com.example.qi.biubiunews.models.News;
+import com.example.qi.biubiunews.models.Package;
+import com.example.qi.biubiunews.models.User;
 import com.example.qi.biubiunews.user.UserNewsActivity;
 import com.example.qi.biubiunews.user.adapter.UserNewsRecyclerAdapter;
 import com.example.qi.biubiunews.utils.HttpUtils;
@@ -35,7 +40,7 @@ import java.util.List;
 
 import retrofit2.Response;
 
-public class NewsDetailActivity extends AppCompatActivity {
+public class NewsDetailActivity extends AppCompatActivity implements View.OnClickListener {
 
 
      /**服务器端一共多少条数据*/
@@ -56,14 +61,20 @@ public class NewsDetailActivity extends AppCompatActivity {
     private HttpUtils httpUtils;
     private CommentRecyclerAdapter recyclerAdapter;
     private LRecyclerViewAdapter mLRecyclerViewAdapter;
+
+    private List<Package> packages;
+    private FloatingActionButton click_news_collect;
+
+    private User user;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news_detail);
         news_id = getIntent().getIntExtra("news_id",0);
-
+        packages = new ArrayList<>();
         init();
         getNews();
+
 
     }
 
@@ -73,6 +84,8 @@ public class NewsDetailActivity extends AppCompatActivity {
         webView = (WebView) findViewById(R.id.webview);
         et_comment = (EditText) findViewById(R.id.et_comment);
         btn_comment = (Button) findViewById(R.id.btn_comment);
+        click_news_collect = (FloatingActionButton) findViewById(R.id.news_collect);
+        click_news_collect.setOnClickListener(this);
 
         recyclerView = (LRecyclerView) findViewById(R.id.recycler_comment);
         recyclerAdapter = new CommentRecyclerAdapter(this);
@@ -178,6 +191,59 @@ public class NewsDetailActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.news_collect:
+                get_packages();
 
+                break;
+        }
+    }
 
+    private void get_packages(){
+        httpUtils.get_self_packages(new HttpCallback() {
+            @Override
+            public void onResponse(Response response) {
+                packages = (List<Package>) response.body();
+                String[] str = new String[packages.size()];
+                for(Package mPackage : packages){
+                    int index = packages.indexOf(mPackage);
+                    str[index] = mPackage.getName();
+                }
+                new AlertDialog.Builder(NewsDetailActivity.this)
+                        .setTitle("选择收藏夹")
+                        .setItems(str, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                int package_id = packages.get(which).getId();
+                                httpUtils.collection_news(package_id, news_id, new HttpCallback() {
+                                    @Override
+                                    public void onResponse(Response response) {
+                                        if (response.code() == 201){
+                                            Toast.makeText(NewsDetailActivity.this, "收藏成功", Toast.LENGTH_SHORT).show();
+                                            click_news_collect.setVisibility(View.GONE);
+                                        }
+                                        else{
+                                            Toast.makeText(NewsDetailActivity.this, response.toString(), Toast.LENGTH_SHORT).show();
+                                        }
+
+                                    }
+                                    @Override
+                                    public void onFailure(Throwable t) {
+                                        Toast.makeText(NewsDetailActivity.this, t.toString(), Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+
+                            }
+                        })
+                        .show();
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Toast.makeText(NewsDetailActivity.this, t.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 }
